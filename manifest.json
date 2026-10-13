@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "FB Ads Command Center",
+  "version": "1.0.0",
+  "description": "Spend analysis, creative winner-finder, and bulk pause/resume for Facebook Ads — all via your official Graph API access token.",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://graph.facebook.com/*"
+  ],
+  "action": {
+    "default_popup": "popup/index.html",
+    "default_title": "FB Ads Command Center"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}

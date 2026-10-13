@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FB Ads Command Center</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="app">
+
+  <header class="header">
+    <div>
+      <h1>FB Ads Command Center</h1>
+      <p>Spend analysis + page report + bulk pause/resume, one token</p>
+    </div>
+    <div class="dot" id="statusDot"></div>
+  </header>
+
+  <section class="card">
+    <label>ACCESS TOKEN <span class="hint-inline">(Graph API Explorer)</span></label>
+    <div class="row">
+      <input id="tokenInput" placeholder="EAAG..." />
+      <button id="saveTokenBtn" class="btn blue">Save &amp; Validate</button>
+    </div>
+    <p class="hint">Needs: ads_read, ads_management, business_management, pages_read_engagement</p>
+    <p id="tokenStatus" class="hint"></p>
+  </section>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="analyze">📊 Analyze</button>
+    <button class="tab-btn" data-tab="report">📄 Page Report</button>
+    <button class="tab-btn" data-tab="control">⏯ Control</button>
+  </nav>
+
+  <!-- ===================== ANALYZE TAB ===================== -->
+  <div id="tab-analyze" class="tab-panel active">
+
+    <section class="card">
+      <label>AD ACCOUNTS <span class="link" id="selectAllAccounts">Select All</span></label>
+      <div id="analyzeAccountsList" class="pages-list"><p class="muted">Save a token first</p></div>
+    </section>
+
+    <section class="card">
+      <div class="row">
+        <div class="col">
+          <label>Date Preset</label>
+          <select id="datePreset">
+            <option value="last_30d">Last 30 Days</option>
+            <option value="last_90d" selected>Last 90 Days</option>
+            <option value="last_365d">Last 1 Year</option>
+            <option value="lifetime">Lifetime</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+        <div class="col">
+          <label>View</label>
+          <select id="viewMode">
+            <option value="page" selected>By Page (Spend)</option>
+            <option value="creative">Creative Winner</option>
+          </select>
+        </div>
+      </div>
+      <div id="customRow" class="row hidden">
+        <div class="col"><label>Since</label><input type="date" id="since"></div>
+        <div class="col"><label>Until</label><input type="date" id="until"></div>
+      </div>
+      <button id="fetchBtn" class="btn blue full">🔍 Fetch &amp; Analyze</button>
+      <div id="analyzeStatus" class="hint"></div>
+    </section>
+
+    <section id="resultCard" class="card hidden">
+      <div class="flex">
+        <h3 id="totalSpend" class="result-title">Total: $0</h3>
+        <button id="exportPdfBtn" class="btn dark">📄 PDF</button>
+      </div>
+      <div class="table-wrap"><table><thead><tr id="tableHead"></tr></thead><tbody id="tableBody"></tbody></table></div>
+    </section>
+  </div>
+
+  <!-- ===================== PAGE REPORT TAB ===================== -->
+  <div id="tab-report" class="tab-panel">
+
+    <section class="card">
+      <label>AD ACCOUNTS <span class="link" id="rpAccSelectAll">Select All</span></label>
+      <div id="rpAccounts" class="pages-list"><p class="muted">Save a token first</p></div>
+      <p class="hint">Tick every account this page may have run ads in. Results are merged into one report.</p>
+    </section>
+
+    <section class="card">
+      <div class="flex">
+        <label>SELECT PAGE(S)</label>
+        <span><button id="rpSelectAll" class="link">Select All</button> &nbsp; <button id="rpClear" class="link">Clear</button></span>
+      </div>
+      <div id="rpPages" class="pages-list"><p class="muted">Select account first</p></div>
+      <p id="rpPageInfo" class="hint"></p>
+    </section>
+
+    <section class="card">
+      <div class="row">
+        <div class="col">
+          <label>Date Range</label>
+          <select id="rpPreset">
+            <option value="last_30d">Last 30 Days</option>
+            <option value="last_90d">Last 90 Days</option>
+            <option value="last_365d">Last 1 Year</option>
+            <option value="lifetime" selected>Max (last 3 years)</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+        <div class="col rp-check">
+          <label class="inline"><input type="checkbox" id="rpOnlySpend" checked /> Only ads that spent money</label>
+        </div>
+      </div>
+      <div id="rpCustomRow" class="row hidden">
+        <div class="col"><label>Since</label><input type="date" id="rpSince"></div>
+        <div class="col"><label>Until</label><input type="date" id="rpUntil"></div>
+      </div>
+      <button id="rpFetchBtn" class="btn blue full">🔍 Get Page Report</button>
+      <div id="rpStatus" class="hint"></div>
+    </section>
+
+    <section id="rpResult" class="card hidden">
+      <div class="flex">
+        <h3 id="rpTitle" class="result-title"></h3>
+      </div>
+      <div id="rpSummary" class="rp-summary"></div>
+      <div class="grid3 mt">
+        <button id="rpCsvAds" class="btn dark">⬇ CSV (Ads)</button>
+        <button id="rpCsvDaily" class="btn dark">⬇ CSV (Daily)</button>
+        <button id="rpPdf" class="btn dark">📄 PDF</button>
+      </div>
+      <div class="table-wrap tall"><table><thead><tr id="rpHead"></tr></thead><tbody id="rpBody"></tbody></table></div>
+    </section>
+  </div>
+
+  <!-- ===================== CONTROL TAB ===================== -->
+  <div id="tab-control" class="tab-panel">
+
+    <section class="card">
+      <label>AD ACCOUNT</label>
+      <select id="controlAccountSelect"><option value="">Select Ad Account</option></select>
+    </section>
+
+    <section class="card">
+      <div class="flex">
+        <label>PAGE FILTER (tick to target)</label>
+        <button id="clearPages" class="link">Clear All</button>
+      </div>
+      <div id="pagesList" class="pages-list"><p class="muted">Select account first</p></div>
+      <p id="filterInfo" class="hint"></p>
+    </section>
+
+    <section>
+      <div id="progressWrap" class="hidden">
+        <div class="prog-text"><span id="progLabel">Processing 0/0</span><span id="progPct">0%</span></div>
+        <div class="prog-bg"><div id="progBar" class="prog-fill"></div></div>
+        <p id="successInfo" class="hint" style="margin-top:4px"></p>
+      </div>
+      <div class="grid2">
+        <button id="pauseBtn" class="btn amber">⏸ Smart Pause</button>
+        <button id="resumeBtn" class="btn green">▶ Smart Resume</button>
+      </div>
+      <div class="grid2 mt">
+        <button id="exportCsv" class="btn dark">Export CSV (<span id="sessionCount">0</span>)</button>
+        <button id="exportJson" class="btn dark">Export JSON</button>
+      </div>
+    </section>
+
+    <section class="log-card">
+      <div class="flex">
+        <span class="log-title">SESSION LOGS</span>
+        <button id="clearLog" class="link">Clear</button>
+      </div>
+      <div id="logs" class="logs"></div>
+    </section>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+</div>
+<script type="module" src="popup.js"></script>
+</body>
+</html>
